@@ -15,6 +15,7 @@ class ExtractMetadata
     # Get relative path
     @rel_path = get_rel_path
     outhash[:rel_path] = @rel_path
+    outhash[:folders] = get_folders
 
     # Get formatted name and file type
     outhash[:formatted_name] = get_formatted_name
@@ -23,6 +24,17 @@ class ExtractMetadata
     # Extract file metadata, merge. and return
     outhash.merge!(extract_file_metadata)
     return outhash
+  end
+
+  # Split relative path and get array of directories
+  def get_folders
+    folders = @rel_path.split("/")
+
+    # Remove file and empty items
+    folders.delete(folders.last)
+    folders.delete("")
+
+    return folders
   end
 
   # Get the relative path
