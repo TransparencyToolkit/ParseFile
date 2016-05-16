@@ -2,9 +2,9 @@ require 'json'
 require 'docsplit'
 require 'fileutils'
 require 'pry'
-require 'dircrawl'
-load 'ocrfile.rb'
-load 'extractmetadata.rb'
+#require 'dircrawl'
+load '/home/shidash/Code/ParseFile/lib/ocrfile.rb' #FIX
+load '/home/shidash/Code/ParseFile/lib/extractmetadata.rb' # FIX
 
 class ParseFile
   def initialize(file, input_dir, output_dir)
@@ -15,6 +15,7 @@ class ParseFile
 
   # Parse the file
   def parse_file
+    begin
     # Get metadata
     m = ExtractMetadata.new(@path, @input_dir, @output_dir)
     @metadata = m.extract
@@ -25,6 +26,9 @@ class ParseFile
 
     # Generate output and return
     gen_output
+    rescue #TODO: Fix!
+      binding.pry
+    end
   end
 
   # Generate output
@@ -32,7 +36,16 @@ class ParseFile
     outhash = Hash.new
     outhash[:full_path] = @path
     outhash.merge!(@metadata)
-    outhash[:text] = @text
-    return JSON.pretty_generate(outhash)
+    begin
+      outhash[:text] = @text.to_s.encode('UTF-8', {
+                                           :invalid => :replace,
+                                           :undef   => :replace,
+                                           :replace => '?'
+                                         })
+      return JSON.pretty_generate(outhash)
+    rescue
+      binding.pry
+    end
   end
 end
+

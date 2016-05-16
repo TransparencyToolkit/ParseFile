@@ -14,8 +14,8 @@ class OCRFile
   # OCR file
   def ocr
     begin
-      if File.exist?(@output_dir+@rel_path)
-        load_extracted_text(@output_dir+@rel_path)
+      if File.exist?(@output_dir+@rel_path+".json")
+        load_extracted_text(@output_dir+@rel_path+".json")
       elsif @path.include?(".pdf")
         ocr_pdf
       else
@@ -24,7 +24,7 @@ class OCRFile
     rescue # Detect errors
       binding.pry
     end
-
+    
     return @text
   end
 
@@ -36,7 +36,7 @@ class OCRFile
 
   # Load text that is already extracted
   def load_extracted_text(file)
-    @text = File.read(file)
+    @text = JSON.parse(File.read(file))["text"]
   end
 
   # Send file to give me text
@@ -55,23 +55,34 @@ class OCRFile
 
   # OCR with tesseract
   def ocr_pdf
+    # Dir_paths
+    base = Dir.pwd+"/"
+    
     # Split pages to handle large PDFs
-    Docsplit.extract_pages(@path, :output => 'pages')
+    Docsplit.extract_pages(@path, :output => base+'pages')
     filename = @path.split("/").last.gsub(".pdf", "")
-    docs = Dir['pages/'+filename+'*']
+    docs = Dir[base+'pages/'+filename+'*']
 
+    # Rename pages so that they can be processed with spaces
+    docs.each do |d|
+      new_name = d.split("/").last.gsub(" ", "_").gsub("(", "").gsub(")", "")
+      File.rename(d, base+'pages/'+new_name)
+    end
+    filename = filename.gsub(" ", "_").gsub("(", "").gsub(")", "")
+    docs_no_spaces = Dir[base+'pages/'+filename+'*']
+    
     # Extract text and save
-    Docsplit.extract_text(docs, :output => 'text')
-    text_files = Dir['text/'+filename+'*']
+    Docsplit.extract_text(docs_no_spaces, :output => base+'text')
+    text_files = Dir[base+'text/'+filename+'*']
     sorted_text = text_files.sort_by {|f| f.split(filename).last.gsub("_", "").gsub(".txt", "").to_i }
     sorted_text.each do |f|
       @text += File.read(f)
     end
 
     # Clean up
-    FileUtils.rm_f Dir.glob("pages/*")
-    Dir.delete("pages")
-    FileUtils.rm_f Dir.glob("text/*")
-    Dir.delete("text")
+    FileUtils.rm_f Dir.glob(base+"pages/*")
+    Dir.delete(base+"pages")
+    FileUtils.rm_f Dir.glob(base+"text/*")
+    Dir.delete(base+"text")
   end
 end

@@ -22,7 +22,10 @@ class ExtractMetadata
     outhash[:filetype] = get_file_type
 
     # Extract file metadata, merge. and return
-    outhash.merge!(extract_file_metadata)
+    begin
+      outhash.merge!(extract_file_metadata)
+    rescue
+    end
     return outhash
   end
 
