@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'parsefile'
-  s.version     = '0.0.3'
+  s.version     = '0.0.4'
   s.date        = '2016-05-16'
   s.summary     = 'OCR file and extract metadata'
   s.description = 'OCR file and extract metadata'

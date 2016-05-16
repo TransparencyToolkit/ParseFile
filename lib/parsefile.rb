@@ -2,9 +2,9 @@ require 'json'
 require 'docsplit'
 require 'fileutils'
 require 'pry'
-#require 'dircrawl'
-load '/home/shidash/Code/ParseFile/lib/ocrfile.rb' #FIX
-load '/home/shidash/Code/ParseFile/lib/extractmetadata.rb' # FIX
+require 'dircrawl'
+load 'ocrfile.rb' 
+load 'extractmetadata.rb' 
 
 class ParseFile
   def initialize(file, input_dir, output_dir)
