@@ -1,13 +1,16 @@
 require 'fileutils'
 require 'docsplit'
 require 'curb'
+require 'mimemagic'
+require 'pry'
 
 class OCRFile
-  def initialize(file, input_dir, output_dir, rel_path)
+  def initialize(file, input_dir, output_dir, rel_path, tika)
     @path = file
     @input_dir = input_dir
     @output_dir = output_dir
     @rel_path = rel_path
+	@tika = tika
     @text = ""
   end
 
@@ -19,7 +22,11 @@ class OCRFile
       elsif @path.include?(".pdf")
         ocr_pdf
       else
-        give_me_text
+        if tika
+          give_me_text_local
+        else
+          give_me_text
+        end
       end
     rescue # Detect errors
       binding.pry
@@ -44,8 +51,23 @@ class OCRFile
     c = Curl::Easy.new("http://givemetext.okfnlabs.org/tika/tika/form")
     c.multipart_form_post = true
     c.http_post(Curl::PostField.file('file', @path))
-    @text = c.body_str
+
+	@text = c.body_str
     gotten_text_ok?(@text)
+  end
+
+  def give_me_text_local
+	# TODO: might want to make this URL configurable with port
+	c = Curl::Easy.new("http://localhost:9998/tika")
+	# TODO: move this mime filtering to a higher global level
+	mime_magic = MimeMagic.by_path(@path)
+	file_data = File.read(@path)
+	c.headers['Content-Type'] = mime_magic.type
+	c.headers['Accept'] = "text/plain"
+	c.http_put(file_data)
+
+	@text = c.body_str
+	gotten_text_ok?(@text)
   end
 
   # Checks if text was successfully extracted
@@ -74,7 +96,8 @@ class OCRFile
     # Extract text and save
     Docsplit.extract_text(docs_no_spaces, :output => base+'text')
     text_files = Dir[base+'text/'+filename+'*']
-    sorted_text = text_files.sort_by {|f| f.split(filename).last.gsub("_", "").gsub(".txt", "").to_i }
+    sorted_text = text_files.sort_by {|f|
+		f.split(filename).last.gsub("_", "").gsub(".txt", "").to_i }
     sorted_text.each do |f|
       @text += File.read(f)
     end
