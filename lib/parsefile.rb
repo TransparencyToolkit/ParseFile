@@ -3,15 +3,16 @@ require 'docsplit'
 require 'fileutils'
 require 'pry'
 require 'dircrawl'
-load '/home/user/TransparencyToolkit/gems/ParseFile/lib/ocrfile.rb' 
-load '/home/user/TransparencyToolkit/gems/ParseFile/lib/extractmetadata.rb' 
+load 'ocrfile.rb' 
+load 'extractmetadata.rb' 
 
 class ParseFile
   def initialize(file, input_dir, output_dir, tika)
     @path = file
     @input_dir = input_dir
     @output_dir = output_dir
-	# Use custom Tika URL or OKFN GiveMeText service
+	# Pass the url for a custom (or local) Tika server
+	# Else use OKFNs service over normal HTTP... ZOMG... O.o
 	if tika
 	  @tika = tika
 	else
@@ -27,7 +28,7 @@ class ParseFile
     @metadata = m.extract
 
     # OCR File
-    o = OCRFile.new(@path, @input_dir, @output_dir, @metadata[:rel_path], @tika_url)
+    o = OCRFile.new(@path, @input_dir, @output_dir, @metadata[:rel_path], @tika)
     @text = o.ocr
 
     # Generate output and return

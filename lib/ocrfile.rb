@@ -2,7 +2,6 @@ require 'fileutils'
 require 'docsplit'
 require 'curb'
 require 'mimemagic'
-require 'pry'
 
 class OCRFile
   def initialize(file, input_dir, output_dir, rel_path, tika)
@@ -22,7 +21,7 @@ class OCRFile
       elsif @path.include?(".pdf")
         ocr_pdf
       else
-        if tika
+        if @tika
           give_me_text_local
         else
           give_me_text
@@ -57,14 +56,15 @@ class OCRFile
   end
 
   def give_me_text_local
-	# TODO: might want to make this URL configurable with port
-	c = Curl::Easy.new("http://localhost:9998/tika")
+	c = Curl::Easy.new(@tika + "/tika")
 	# TODO: move this mime filtering to a higher global level
 	mime_magic = MimeMagic.by_path(@path)
 	file_data = File.read(@path)
 	c.headers['Content-Type'] = mime_magic.type
 	c.headers['Accept'] = "text/plain"
 	c.http_put(file_data)
+
+	#binding.pry
 
 	@text = c.body_str
 	gotten_text_ok?(@text)
