@@ -2,7 +2,7 @@ require 'json'
 require 'docsplit'
 require 'fileutils'
 require 'pry'
-require 'dircrawl'
+
 load 'ocrfile.rb' 
 load 'extractmetadata.rb' 
 
