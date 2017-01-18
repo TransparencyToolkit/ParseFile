@@ -36,17 +36,20 @@ class OCRFile
 
   # Check if file is pdf
   def is_pdf?
+    puts "determined: is_pdf"
     file_start = File.open(@path, 'r') { |f| f.read(8)}
     file_start.match(/\%PDF-\d+\.?\d+/)
   end
 
   # Load text that is already extracted
   def load_extracted_text(file)
+	puts "file exists: load_extracted_text"
     @text = JSON.parse(File.read(file))["text"]
   end
 
   # Send file to give me text
   def give_me_text
+	puts "using: give_me_text"
     c = Curl::Easy.new("http://givemetext.okfnlabs.org/tika/tika/form")
     c.multipart_form_post = true
     c.http_post(Curl::PostField.file('file', @path))
@@ -56,6 +59,7 @@ class OCRFile
   end
 
   def give_me_text_local
+	puts "using: give_me_text_local"
 	c = Curl::Easy.new(@tika + "/tika")
 	# TODO: move this mime filtering to a higher global level
 	mime_magic = MimeMagic.by_path(@path)
@@ -65,7 +69,6 @@ class OCRFile
 	c.http_put(file_data)
 
 	#binding.pry
-
 	@text = c.body_str
 	gotten_text_ok?(@text)
   end
@@ -77,6 +80,7 @@ class OCRFile
 
   # OCR with tesseract
   def ocr_pdf
+	puts "using: ocr_pdf"
     # Dir_paths
     base = Dir.pwd+"/"
     
