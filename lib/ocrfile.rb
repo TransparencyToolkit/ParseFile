@@ -28,7 +28,7 @@ class OCRFile
         end
       end
     rescue # Detect errors
-      binding.pry
+      #binding.pry
     end
     
     return @text
