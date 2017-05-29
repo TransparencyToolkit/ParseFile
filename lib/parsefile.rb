@@ -2,19 +2,18 @@ require 'json'
 require 'docsplit'
 require 'fileutils'
 require 'pry'
-
-load 'ocrfile.rb' 
-load 'extractmetadata.rb' 
+require 'ocrfile' 
+require 'extractmetadata' 
 
 class ParseFile
   def initialize(file, input_dir, output_dir, tika)
     @path = file
     @input_dir = input_dir
     @output_dir = output_dir
-	# Pass the url for a custom (or local) Tika server
-	# Else use OKFNs service over normal HTTP... ZOMG... O.o
+	# Pass URL of a Tika server
 	if tika
 	  @tika = tika
+	# Use OKFNs service over normal HTTP... ZOMG... O.o
 	else
 	  @tika = nil
 	end
