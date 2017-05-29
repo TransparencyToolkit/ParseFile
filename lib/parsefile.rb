@@ -6,7 +6,7 @@ require 'extractmetadata'
 
 class ParseFile
   def initialize(file, input_dir, output_dir, tika)
-    @path = file
+    @path = file.unpack('C*').pack('U*')
     @input_dir = input_dir
     @output_dir = output_dir
 	# Pass URL of a Tika server
@@ -30,8 +30,10 @@ class ParseFile
 
       gen_output
     rescue
-	  #TODO: use a global debug / log
-      binding.pry
+	  # TODO: use a global debug / log
+      # binding.pry
+      error_file = @path + "\n"
+      IO.write(@output_dir+"/error_log.txt", error_file, mode: 'a')
     end
   end
 
