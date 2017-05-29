@@ -6,6 +6,10 @@ class ExtractMetadata
     @path = file
     @input_dir = input_dir
     @output_dir = output_dir
+	@allowed_extensions = [
+      'pdf', 'doc', 'docbook', 'docx', 'txt', 'rtf', 'md', 'csv', 'xls', 'xlsx', 
+      'jpg', 'jpeg', 'png', 'gif', 'svg'
+	]
   end
 
   # Extract metadata
@@ -23,7 +27,11 @@ class ExtractMetadata
 
     # Extract file metadata, merge. and return
     begin
-      outhash.merge!(extract_file_metadata)
+	  if (@allowed_extensions.include? outhash[:filetype])
+        outhash.merge!(extract_file_metadata)
+      else
+        puts "skipping ." + outhash[:filetype] + " file" 
+      end
     rescue
     end
     return outhash

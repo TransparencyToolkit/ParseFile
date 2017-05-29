@@ -1,5 +1,4 @@
 require 'json'
-require 'docsplit'
 require 'fileutils'
 require 'pry'
 require 'ocrfile' 
@@ -19,25 +18,23 @@ class ParseFile
 	end
   end
 
-  # Parse the file
   def parse_file
     begin
-    # Get metadata
-    m = ExtractMetadata.new(@path, @input_dir, @output_dir)
-    @metadata = m.extract
+	  puts "sending file: " + @path
 
-    # OCR File
-    o = OCRFile.new(@path, @input_dir, @output_dir, @metadata[:rel_path], @tika)
-    @text = o.ocr
+      m = ExtractMetadata.new(@path, @input_dir, @output_dir)
+      @metadata = m.extract
 
-    # Generate output and return
-    gen_output
-    rescue #TODO: Fix!
+      o = OCRFile.new(@path, @input_dir, @output_dir, @metadata[:rel_path], @tika)
+      @text = o.ocr
+
+      gen_output
+    rescue
+	  #TODO: use a global debug / log
       binding.pry
     end
   end
 
-  # Generate output
   def gen_output
     outhash = Hash.new
     outhash[:full_path] = @path
