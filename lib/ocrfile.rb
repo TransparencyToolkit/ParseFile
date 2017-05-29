@@ -27,7 +27,9 @@ class OCRFile
       end
     rescue
 	  # Detect errors
-      binding.pry
+      # binding.pry
+      error_file = @path + "\n"
+      IO.write(@output_dir+"/error_log.txt", error_file, mode: 'a')
     end
     
     return @text

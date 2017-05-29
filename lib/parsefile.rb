@@ -6,7 +6,7 @@ require 'extractmetadata'
 
 class ParseFile
   def initialize(file, input_dir, output_dir, tika)
-    @path = file.unpack('C*').pack('U*')
+    @path = file
     @input_dir = input_dir
     @output_dir = output_dir
 	# Pass URL of a Tika server
@@ -21,8 +21,9 @@ class ParseFile
   def parse_file
     begin
 	  puts "sending file: " + @path
-
-      m = ExtractMetadata.new(@path, @input_dir, @output_dir)
+	
+      path_fix = @path.unpack('C*').pack('U*')
+      m = ExtractMetadata.new(path_fix, @input_dir, @output_dir)
       @metadata = m.extract
 
       o = OCRFile.new(@path, @input_dir, @output_dir, @metadata[:rel_path], @tika)
